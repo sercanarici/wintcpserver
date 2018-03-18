@@ -1,0 +1,34 @@
+G:\TCP and UDP\C#\Src\winTCPServer\SK50_winBCServer\obj\Debug\ResolveAssemblyReference.cache
+G:\TCP and UDP\C#\Src\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.MainForm1.resources
+G:\TCP and UDP\C#\Src\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.csproj.GenerateResource.Cache
+G:\TCP and UDP\C#\Src\winTCPServer\SK50_winBCServer\bin\Debug\winTCPServer.exe
+G:\TCP and UDP\C#\Src\winTCPServer\SK50_winBCServer\bin\Debug\winTCPServer.pdb
+G:\TCP and UDP\C#\Src\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.Properties.Resources.resources
+G:\TCP and UDP\C#\Src\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.exe
+G:\TCP and UDP\C#\Src\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.pdb
+C:\Users\sercan\Desktop\FIYATGOR\SCANTECH\FTP\SK-Series_Product-CD_V1.11\WinCE 6.0\Software Source Code Examples\C#\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.exe
+C:\Users\sercan\Desktop\FIYATGOR\SCANTECH\FTP\SK-Series_Product-CD_V1.11\WinCE 6.0\Software Source Code Examples\C#\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.pdb
+C:\Users\sercan\Desktop\FIYATGOR\SCANTECH\FTP\SK-Series_Product-CD_V1.11\WinCE 6.0\Software Source Code Examples\C#\winTCPServer\SK50_winBCServer\bin\Debug\winTCPServer.exe
+C:\Users\sercan\Desktop\FIYATGOR\SCANTECH\FTP\SK-Series_Product-CD_V1.11\WinCE 6.0\Software Source Code Examples\C#\winTCPServer\SK50_winBCServer\bin\Debug\winTCPServer.pdb
+C:\Users\sercan\Desktop\FIYATGOR\SCANTECH\FTP\SK-Series_Product-CD_V1.11\WinCE 6.0\Software Source Code Examples\C#\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.Properties.Resources.resources
+C:\Users\sercan\Desktop\FIYATGOR\SCANTECH\FTP\SK-Series_Product-CD_V1.11\WinCE 6.0\Software Source Code Examples\C#\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.MainForm1.resources
+C:\Users\sercan\Desktop\FIYATGOR\SCANTECH\FTP\SK-Series_Product-CD_V1.11\WinCE 6.0\Software Source Code Examples\C#\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.csproj.GenerateResource.Cache
+C:\Users\sercan\Desktop\FIYATGOR\SCANTECH\FTP\SK-Series_Product-CD_V1.11\WinCE 6.0\Software Source Code Examples\C#\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.csprojResolveAssemblyReference.cache
+C:\Users\sercan\Desktop\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.exe
+C:\Users\sercan\Desktop\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.pdb
+C:\Users\sercan\Desktop\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.csprojResolveAssemblyReference.cache
+C:\Users\sercan\Desktop\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.Properties.Resources.resources
+C:\Users\sercan\Desktop\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.csproj.GenerateResource.Cache
+C:\Users\sercan\Desktop\winTCPServer\SK50_winBCServer\bin\Debug\winTCPServer.exe
+C:\Users\sercan\Desktop\winTCPServer\SK50_winBCServer\bin\Debug\winTCPServer.pdb
+C:\Users\sercan\Desktop\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.frmMain.resources
+C:\Users\sercan\Desktop\winTCPServer\SK50_winBCServer\bin\Debug\winTCPServer.exe.config
+C:\Users\sercan\Desktop\FIYATGOR\winTCPServer\SK50_winBCServer\bin\Debug\winTCPServer.exe.config
+C:\Users\sercan\Desktop\FIYATGOR\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.exe
+C:\Users\sercan\Desktop\FIYATGOR\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.pdb
+C:\Users\sercan\Desktop\FIYATGOR\winTCPServer\SK50_winBCServer\bin\Debug\winTCPServer.exe
+C:\Users\sercan\Desktop\FIYATGOR\winTCPServer\SK50_winBCServer\bin\Debug\winTCPServer.pdb
+C:\Users\sercan\Desktop\FIYATGOR\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.csprojResolveAssemblyReference.cache
+C:\Users\sercan\Desktop\FIYATGOR\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.Properties.Resources.resources
+C:\Users\sercan\Desktop\FIYATGOR\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.frmMain.resources
+C:\Users\sercan\Desktop\FIYATGOR\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.csproj.GenerateResource.Cache

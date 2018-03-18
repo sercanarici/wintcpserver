@@ -1,0 +1,7 @@
+C:\Users\sercan\Desktop\FIYATGOR\SCANTECH\FTP\SK-Series_Product-CD_V1.11\WinCE 6.0\Software Source Code Examples\C#\winTCPServer\SK50_winBCServer\obj\Release\winTCPServer.exe
+C:\Users\sercan\Desktop\FIYATGOR\SCANTECH\FTP\SK-Series_Product-CD_V1.11\WinCE 6.0\Software Source Code Examples\C#\winTCPServer\SK50_winBCServer\obj\Release\winTCPServer.pdb
+C:\Users\sercan\Desktop\FIYATGOR\SCANTECH\FTP\SK-Series_Product-CD_V1.11\WinCE 6.0\Software Source Code Examples\C#\winTCPServer\SK50_winBCServer\bin\Release\winTCPServer.exe
+C:\Users\sercan\Desktop\FIYATGOR\SCANTECH\FTP\SK-Series_Product-CD_V1.11\WinCE 6.0\Software Source Code Examples\C#\winTCPServer\SK50_winBCServer\bin\Release\winTCPServer.pdb
+C:\Users\sercan\Desktop\FIYATGOR\SCANTECH\FTP\SK-Series_Product-CD_V1.11\WinCE 6.0\Software Source Code Examples\C#\winTCPServer\SK50_winBCServer\obj\Release\winTCPServer.Properties.Resources.resources
+C:\Users\sercan\Desktop\FIYATGOR\SCANTECH\FTP\SK-Series_Product-CD_V1.11\WinCE 6.0\Software Source Code Examples\C#\winTCPServer\SK50_winBCServer\obj\Release\winTCPServer.MainForm1.resources
+C:\Users\sercan\Desktop\FIYATGOR\SCANTECH\FTP\SK-Series_Product-CD_V1.11\WinCE 6.0\Software Source Code Examples\C#\winTCPServer\SK50_winBCServer\obj\Release\winTCPServer.csproj.GenerateResource.Cache
