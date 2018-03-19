@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Windows.Forms;
 using SK50_Checker;
 using System.Net;
+using Microsoft.Win32;
 
 namespace winTCPServer
 {
@@ -99,5 +100,32 @@ namespace winTCPServer
                 _Server.Stop();
         }
 
+        private void frmMain_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            try
+            {
+                RegistryKey key = Registry.CurrentUser.CreateSubKey(@"Software\PC88-FiyatGor");
+                key.SetValue("ip", txtIP.Text);
+                key.SetValue("port", txtPort.Text);
+            }
+            catch (Exception)
+            {
+
+            }
+        }
+
+        private void frmMain_Load(object sender, EventArgs e)
+        {
+            try
+            {
+                RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\PC88-FiyatGor");
+                txtIP.Text = key.GetValue("ip").ToString();
+                txtPort.Text = key.GetValue("port").ToString();
+            }
+            catch (Exception)
+            {
+
+            }
+        }
     }
 }

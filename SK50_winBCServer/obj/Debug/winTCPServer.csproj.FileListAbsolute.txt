@@ -32,3 +32,11 @@ C:\Users\sercan\Desktop\FIYATGOR\winTCPServer\SK50_winBCServer\obj\Debug\winTCPS
 C:\Users\sercan\Desktop\FIYATGOR\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.Properties.Resources.resources
 C:\Users\sercan\Desktop\FIYATGOR\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.frmMain.resources
 C:\Users\sercan\Desktop\FIYATGOR\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.csproj.GenerateResource.Cache
+D:\Dropbox\Repositories\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.Properties.Resources.resources
+D:\Dropbox\Repositories\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.frmMain.resources
+D:\Dropbox\Repositories\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.csproj.GenerateResource.Cache
+D:\Dropbox\Repositories\winTCPServer\SK50_winBCServer\bin\Debug\FiyatGorTCPServer.exe.config
+D:\Dropbox\Repositories\winTCPServer\SK50_winBCServer\bin\Debug\FiyatGorTCPServer.exe
+D:\Dropbox\Repositories\winTCPServer\SK50_winBCServer\bin\Debug\FiyatGorTCPServer.pdb
+D:\Dropbox\Repositories\winTCPServer\SK50_winBCServer\obj\Debug\FiyatGorTCPServer.exe
+D:\Dropbox\Repositories\winTCPServer\SK50_winBCServer\obj\Debug\FiyatGorTCPServer.pdb
