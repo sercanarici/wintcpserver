@@ -5,3 +5,12 @@ C:\Users\sercan\Desktop\FIYATGOR\SCANTECH\FTP\SK-Series_Product-CD_V1.11\WinCE 6
 C:\Users\sercan\Desktop\FIYATGOR\SCANTECH\FTP\SK-Series_Product-CD_V1.11\WinCE 6.0\Software Source Code Examples\C#\winTCPServer\SK50_winBCServer\obj\Release\winTCPServer.Properties.Resources.resources
 C:\Users\sercan\Desktop\FIYATGOR\SCANTECH\FTP\SK-Series_Product-CD_V1.11\WinCE 6.0\Software Source Code Examples\C#\winTCPServer\SK50_winBCServer\obj\Release\winTCPServer.MainForm1.resources
 C:\Users\sercan\Desktop\FIYATGOR\SCANTECH\FTP\SK-Series_Product-CD_V1.11\WinCE 6.0\Software Source Code Examples\C#\winTCPServer\SK50_winBCServer\obj\Release\winTCPServer.csproj.GenerateResource.Cache
+D:\Dropbox\Repositories\winTCPServer\SK50_winBCServer\bin\Release\FiyatGorTCPServer.exe.config
+D:\Dropbox\Repositories\winTCPServer\SK50_winBCServer\bin\Release\FiyatGorTCPServer.exe
+D:\Dropbox\Repositories\winTCPServer\SK50_winBCServer\bin\Release\FiyatGorTCPServer.pdb
+D:\Dropbox\Repositories\winTCPServer\SK50_winBCServer\obj\Release\winTCPServer.Properties.Resources.resources
+D:\Dropbox\Repositories\winTCPServer\SK50_winBCServer\obj\Release\winTCPServer.frmMain.resources
+D:\Dropbox\Repositories\winTCPServer\SK50_winBCServer\obj\Release\winTCPServer.csproj.GenerateResource.Cache
+D:\Dropbox\Repositories\winTCPServer\SK50_winBCServer\obj\Release\FiyatGorTCPServer.exe
+D:\Dropbox\Repositories\winTCPServer\SK50_winBCServer\obj\Release\FiyatGorTCPServer.pdb
+D:\Dropbox\Repositories\winTCPServer\SK50_winBCServer\obj\Release\winTCPServer.csprojResolveAssemblyReference.cache

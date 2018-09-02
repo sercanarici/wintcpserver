@@ -40,3 +40,4 @@ D:\Dropbox\Repositories\winTCPServer\SK50_winBCServer\bin\Debug\FiyatGorTCPServe
 D:\Dropbox\Repositories\winTCPServer\SK50_winBCServer\bin\Debug\FiyatGorTCPServer.pdb
 D:\Dropbox\Repositories\winTCPServer\SK50_winBCServer\obj\Debug\FiyatGorTCPServer.exe
 D:\Dropbox\Repositories\winTCPServer\SK50_winBCServer\obj\Debug\FiyatGorTCPServer.pdb
+D:\Dropbox\Repositories\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.csprojResolveAssemblyReference.cache

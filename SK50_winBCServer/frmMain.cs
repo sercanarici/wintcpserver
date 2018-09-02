@@ -91,7 +91,7 @@ namespace winTCPServer
             }
             _Server.Start(port);
             UpdateGetMsgTextBox("System", "TCP Server is running.", Color.Red);
-            groupBox1.Enabled = false;
+            //groupBox1.Enabled = false;
         }       
 
         private void MainForm1_FormClosing()
@@ -121,6 +121,7 @@ namespace winTCPServer
                 RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\PC88-FiyatGor");
                 txtIP.Text = key.GetValue("ip").ToString();
                 txtPort.Text = key.GetValue("port").ToString();
+                btnConnect_Click(null, null);
             }
             catch (Exception)
             {

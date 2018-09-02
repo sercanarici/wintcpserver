@@ -318,7 +318,17 @@ namespace winTCPServer
         private byte[] SoepsOlustur(Product _Product)
         {
             byte[] _soeps = new byte[12];
-            if (_Product.Barcode.Length == 13)
+            if (_Product.Barcode.Length == 15)
+            {
+                _soeps = StringToByteArray("534F4550536B7E6AC6000000");
+
+            }
+            else if (_Product.Barcode.Length == 14)
+            {
+                _soeps = StringToByteArray("534F4550536B7E6AC5000000");
+
+            }
+            else if (_Product.Barcode.Length == 13)
             {
                 _soeps = StringToByteArray("534F4550536B7E6AC4000000");
 
