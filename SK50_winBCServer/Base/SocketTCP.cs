@@ -215,7 +215,12 @@ namespace winTCPServer
             }
             catch (SocketException ex)
             {
-                System.Windows.Forms.MessageBox.Show(ex.Message.ToString());
+                using (StreamWriter w = File.AppendText("log.txt"))
+                {
+                    frmMain.Log(ex.ToString(), w);
+                }
+
+                //System.Windows.Forms.MessageBox.Show(ex.Message.ToString());
                 if (10054 == ex.ErrorCode)
                 {
                     CloseClient(client, "ExceptionExit");
@@ -293,15 +298,23 @@ namespace winTCPServer
         private string GetBarcodeFromReceivedData(string receivedData)
         {
             string sonuc = "";
-            XmlDocument doc = new XmlDocument();
-            doc.LoadXml(receivedData);
+            try
+            {
+                XmlDocument doc = new XmlDocument();
+                doc.LoadXml(receivedData);
 
-            XmlNode node;
-            XmlNode root = doc.DocumentElement;
+                XmlNode node;
+                XmlNode root = doc.DocumentElement;
 
-            node = root.ChildNodes[0].ChildNodes[1];
+                node = root.ChildNodes[0].ChildNodes[1];
 
-            sonuc = node.Attributes["Value"].Value;
+                sonuc = node.Attributes["Value"].Value;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
 
             return sonuc;
 

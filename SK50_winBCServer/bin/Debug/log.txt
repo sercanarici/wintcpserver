@@ -1,0 +1,7 @@
+
+Log Entry : 11:47:25 19 Mart 2019 Salı
+  :
+  :System:           19.03.2019 11:47:25
+TCP Server is running.
+
+-------------------------------
