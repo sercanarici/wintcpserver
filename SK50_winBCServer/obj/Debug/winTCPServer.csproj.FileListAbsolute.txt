@@ -49,3 +49,12 @@ D:\OneDrive\Repositories\winTCPServer\SK50_winBCServer\bin\Debug\FiyatGorTCPServ
 D:\OneDrive\Repositories\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.Properties.Resources.resources
 D:\OneDrive\Repositories\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.frmMain.resources
 D:\OneDrive\Repositories\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.csproj.GenerateResource.Cache
+C:\Repositories\winTCPServer\SK50_winBCServer\bin\Debug\FiyatGorTCPServer.exe.config
+C:\Repositories\winTCPServer\SK50_winBCServer\obj\Debug\FiyatGorTCPServer.exe
+C:\Repositories\winTCPServer\SK50_winBCServer\obj\Debug\FiyatGorTCPServer.pdb
+C:\Repositories\winTCPServer\SK50_winBCServer\bin\Debug\FiyatGorTCPServer.exe
+C:\Repositories\winTCPServer\SK50_winBCServer\bin\Debug\FiyatGorTCPServer.pdb
+C:\Repositories\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.csprojResolveAssemblyReference.cache
+C:\Repositories\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.Properties.Resources.resources
+C:\Repositories\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.frmMain.resources
+C:\Repositories\winTCPServer\SK50_winBCServer\obj\Debug\winTCPServer.csproj.GenerateResource.Cache

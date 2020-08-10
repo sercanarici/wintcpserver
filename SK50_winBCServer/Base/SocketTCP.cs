@@ -82,7 +82,7 @@ namespace winTCPServer
             {
                 return _sessionTable.Count;
             }
-        }        
+        }
 
         public event NetEvent ClientConn;
         public event NetEvent ClientClose;
@@ -119,13 +119,13 @@ namespace winTCPServer
             int len = root.Length;
 
 
-            string txtData = string.Format(@"<Property><ValuePairs><Item Key=""Message-Profile-Id"" Value=""SK4050"" /><Item Key=""Code-Content"" Value=""{0}"" /></ValuePairs><PayLoads><Item Type=""XML"" Length=""{1}"" /></PayLoads></Property>{2}",_Product.Barcode,len, root);
+            string txtData = string.Format(@"<Property><ValuePairs><Item Key=""Message-Profile-Id"" Value=""SK4050"" /><Item Key=""Code-Content"" Value=""{0}"" /></ValuePairs><PayLoads><Item Type=""XML"" Length=""{1}"" /></PayLoads></Property>{2}", _Product.Barcode, len, root);
 
             byte[] _soeps = SoepsOlustur(_Product);
-           
+
             byte[] _data = _coder.GetBytes(txtData);
 
-            Client.BeginSend(_soeps, 0, _soeps.Length, SocketFlags.None, new AsyncCallback(SendDataEnd), Client);           
+            Client.BeginSend(_soeps, 0, _soeps.Length, SocketFlags.None, new AsyncCallback(SendDataEnd), Client);
 
             Client.BeginSend(_data, 0, _data.Length, SocketFlags.None, new AsyncCallback(SendDataEnd), Client);
         }
@@ -192,11 +192,11 @@ namespace winTCPServer
                 }
                 string receivedData = _coder.GetString(_recvDataBuffer, 0, recv);
                 Debug.WriteLine(receivedData);
-                
+
 
                 if (receivedData.StartsWith("<Property>"))
                 {
-                    XmlValidate(receivedData);                    
+                    XmlValidate(receivedData);
 
                     string _barcode = GetBarcodeFromReceivedData(receivedData);
 
@@ -330,8 +330,41 @@ namespace winTCPServer
 
         private byte[] SoepsOlustur(Product _Product)
         {
+
             byte[] _soeps = new byte[12];
-            if (_Product.Barcode.Length == 15)
+
+
+            if (_Product.Barcode.Length == 22)
+            {
+                _soeps = StringToByteArray("534F4550536B7E6ACD000000");
+            }
+
+            else if (_Product.Barcode.Length == 21)
+            {
+                _soeps = StringToByteArray("534F4550536B7E6ACC000000");
+            }
+            else if (_Product.Barcode.Length == 20)
+            {
+                _soeps = StringToByteArray("534F4550536B7E6ACB000000");
+            }
+
+            else if (_Product.Barcode.Length == 19)
+            {
+                _soeps = StringToByteArray("534F4550536B7E6ACA000000");
+            }
+            else if (_Product.Barcode.Length == 18)
+            {
+                _soeps = StringToByteArray("534F4550536B7E6AC9000000");
+            }
+            else if (_Product.Barcode.Length == 17)
+            {
+                _soeps = StringToByteArray("534F4550536B7E6AC8000000");
+            }
+            else if (_Product.Barcode.Length == 16)
+            {
+                _soeps = StringToByteArray("534F4550536B7E6AC7000000");
+            }
+            else if (_Product.Barcode.Length == 15)
             {
                 _soeps = StringToByteArray("534F4550536B7E6AC6000000");
 
@@ -351,11 +384,11 @@ namespace winTCPServer
                 _soeps = StringToByteArray("534F4550536B7E6AC3000000");
 
             }
-            else if(_Product.Barcode.Length == 11)
+            else if (_Product.Barcode.Length == 11)
             {
                 _soeps = StringToByteArray("534F4550536B7E6AC2000000");
             }
-            else if (_Product.Barcode.Length==10)
+            else if (_Product.Barcode.Length == 10)
             {
                 _soeps = StringToByteArray("534F4550536B7E6AC1000000");
             }
