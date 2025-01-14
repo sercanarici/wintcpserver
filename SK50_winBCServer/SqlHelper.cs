@@ -1,24 +1,115 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using FirebirdSql.Data.FirebirdClient;
+using System;
+using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Configuration;
 
 namespace winTCPServer
 {
     public class SqlHelper
     {
-        public static SqlConnection Baglanti
+        public static IDbConnection Baglanti
         {
             get
             {
-                return new SqlConnection(ConfigurationManager.ConnectionStrings["baglanti"].ConnectionString);
+                IDbConnection con = null;
+                string connStr = ConfigurationManager.ConnectionStrings["baglanti"].ConnectionString;
+
+                var dbType = ConfigurationManager.AppSettings["DbType"];
+
+                if (dbType == null)
+                {
+                    con = new SqlConnection(connStr);
+                }
+                else if (dbType.ToString() == "mssql")
+                {
+                    con = new SqlConnection(connStr);
+                }
+                else if (dbType.ToString() == "firebird")
+                {
+                    con = new FbConnection(connStr);
+                }
+
+                return con;
+
             }
         }
 
-        public static DataTable GetDataTable(SqlCommand komut, string tableName = "Tablo")
+
+        public static decimal ExecuteScalar(IDbCommand komut)
+        {
+            try
+            {
+                if (komut.Connection.State != ConnectionState.Open)
+                    komut.Connection.Open();
+                return Convert.ToDecimal(komut.ExecuteScalar());
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (komut.Connection.State != ConnectionState.Closed)
+                    komut.Connection.Close();
+            }
+        }
+
+        public static bool ExecuteNonQuery(IDbCommand komut)
+        {
+            try
+            {
+                if (komut.Connection.State != ConnectionState.Open)
+                    komut.Connection.Open();
+                return komut.ExecuteNonQuery() > 0;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (komut.Connection.State != ConnectionState.Closed)
+                    komut.Connection.Close();
+            }
+        }
+
+        public static DataTable GetDataTable(IDbCommand komut, string tableName = "Tablo")
+        {
+            DataTable dt = null;
+            try
+            {
+                if (komut.Connection.State != ConnectionState.Open)
+                {
+                    komut.Connection.Open();
+                }
+
+                using (var reader = komut.ExecuteReader())
+                {
+                    dt = new DataTable(tableName);
+                    while (!reader.IsClosed)
+                    {
+                        dt.Load(reader);
+                    }
+                }
+
+                return dt;
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+            finally
+            {
+                if (komut.Connection.State != ConnectionState.Closed)
+                {
+                    komut.Connection.Close();
+                }
+            }
+        }
+
+        public static DataTable GetDataTableMsSql(SqlCommand komut, string tableName = "Tablo")
         {
             DataTable dt = null;
             try
@@ -56,42 +147,5 @@ namespace winTCPServer
             return obj == DBNull.Value ? (bool?)null : Convert.ToBoolean(obj);
         }
 
-        public static decimal ExecuteScalar(SqlCommand komut)
-        {
-            try
-            {
-                if (komut.Connection.State != ConnectionState.Open)
-                    komut.Connection.Open();
-                return Convert.ToDecimal(komut.ExecuteScalar());
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (komut.Connection.State != ConnectionState.Closed)
-                    komut.Connection.Close();
-            }
-        }
-
-        public static bool ExecuteNonQuery(SqlCommand komut)
-        {
-            try
-            {
-                if (komut.Connection.State != ConnectionState.Open)
-                    komut.Connection.Open();
-                return komut.ExecuteNonQuery() > 0;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            finally
-            {
-                if (komut.Connection.State != ConnectionState.Closed)
-                    komut.Connection.Close();
-            }
-        }
     }
 }

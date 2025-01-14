@@ -1,11 +1,9 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Drawing;
+using System.IO;
 using System.Net.Sockets;
 using System.Windows.Forms;
-using SK50_Checker;
-using System.Net;
-using Microsoft.Win32;
-using System.IO; 
 
 namespace winTCPServer
 {
@@ -64,6 +62,7 @@ namespace winTCPServer
         }
 
         private delegate void UpdateListbox(Socket _socket,bool add);
+
         private void ClientConn(object sender, NetEventArgs e)
         {
             UpdateListbox _UpdateListbox = new UpdateListbox(UpdateListboxItem);
@@ -182,6 +181,33 @@ namespace winTCPServer
             w.WriteLine($"{DateTime.Now.ToLongTimeString()} {DateTime.Now.ToLongDateString()}");
             w.WriteLine($"  :{logMessage}");
             w.WriteLine("-------------------------------");
+        }
+
+
+        private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            //Show();
+            //this.WindowState = FormWindowState.Normal;
+            //notifyIcon1.Visible = false;
+
+            ShowInTaskbar = true;
+            notifyIcon1.Visible = false;
+            WindowState = FormWindowState.Normal;
+        }
+
+        private void frmMain_Resize(object sender, EventArgs e)
+        {
+            //if the form is minimized
+            //hide it from the task bar
+            //and show the system tray icon (represented by the NotifyIcon control)
+            if (this.WindowState == FormWindowState.Minimized)
+            {
+                //Hide();
+                //notifyIcon1.Visible = true;
+                ShowInTaskbar = false;
+                notifyIcon1.Visible = true;
+                notifyIcon1.ShowBalloonTip(1000);
+            }
         }
     }
 }

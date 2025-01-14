@@ -114,20 +114,27 @@ namespace winTCPServer
 
         public virtual void SendProduct(Socket Client, Product _Product)
         {
-            string root = string.Format("<root><barcode>{0}</barcode><title>{1}</title><desp>{2}</desp><price1>{3}</price1><price2>{4}</price2></root>", _Product.Barcode, _Product.Title, _Product.Description, _Product.Price, _Product.Price2);
+            try
+            {
+                string root = string.Format("<root><barcode>{0}</barcode><title>{1}</title><desp>{2}</desp><price1>{3}</price1><price2>{4}</price2></root>", _Product.Barcode, _Product.Title, _Product.Description, _Product.Price, _Product.Price2);
 
-            int len = root.Length;
+                int len = root.Length;
 
 
-            string txtData = string.Format(@"<Property><ValuePairs><Item Key=""Message-Profile-Id"" Value=""SK4050"" /><Item Key=""Code-Content"" Value=""{0}"" /></ValuePairs><PayLoads><Item Type=""XML"" Length=""{1}"" /></PayLoads></Property>{2}", _Product.Barcode, len, root);
+                string txtData = string.Format(@"<Property><ValuePairs><Item Key=""Message-Profile-Id"" Value=""SK4050"" /><Item Key=""Code-Content"" Value=""{0}"" /></ValuePairs><PayLoads><Item Type=""XML"" Length=""{1}"" /></PayLoads></Property>{2}", _Product.Barcode, len, root);
 
-            byte[] _soeps = SoepsOlustur(_Product);
+                byte[] _soeps = SoepsOlustur(_Product);
 
-            byte[] _data = _coder.GetBytes(txtData);
+                byte[] _data = _coder.GetBytes(txtData);
 
-            Client.BeginSend(_soeps, 0, _soeps.Length, SocketFlags.None, new AsyncCallback(SendDataEnd), Client);
+                Client.BeginSend(_soeps, 0, _soeps.Length, SocketFlags.None, new AsyncCallback(SendDataEnd), Client);
 
-            Client.BeginSend(_data, 0, _data.Length, SocketFlags.None, new AsyncCallback(SendDataEnd), Client);
+                Client.BeginSend(_data, 0, _data.Length, SocketFlags.None, new AsyncCallback(SendDataEnd), Client);
+            }
+            catch (Exception ex)
+            {
+
+            }
         }
 
         public virtual void Stop()
