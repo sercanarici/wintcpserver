@@ -63,6 +63,10 @@ namespace SK50_Checker
 
     class Products
     {
+        // Cihaz birkaç saniye içinde yanıt alamazsa bağlantıyı bırakıyor; varsayılan 30 sn beklemek anlamsız.
+        // Zaman aşımında cihaz en azından hata mesajını görür.
+        private const int CommandTimeoutSeconds = 5;
+
         public Products()
         {
 
@@ -99,6 +103,7 @@ namespace SK50_Checker
 
                     var cmd = con.CreateCommand();
                     cmd.CommandText = cmdText;
+                    cmd.CommandTimeout = CommandTimeoutSeconds;
 
                     using (cmd)
                     {
@@ -141,10 +146,7 @@ namespace SK50_Checker
             }
             catch (Exception ex)
             {
-                //using (StreamWriter w = File.AppendText("log.txt"))
-                //{
-                //    frmMain.Log(ex.ToString(), w);
-                //}
+                Logger.Write("GetProductInfo (" + _barCode + "): " + ex.Message);
                 p.Description = ex.Message;
                 return p;
             }
