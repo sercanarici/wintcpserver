@@ -166,7 +166,8 @@ namespace winTCPServer
                 }
 
                 _Server.Start(port);
-                UpdateGetMsgTextBox("System", "TCP Server is running.", Color.Red);
+                UpdateGetMsgTextBox("System", "TCP Server is running. Barkod eşleşme: "
+                    + (Globals.BarcodeMatch == BarcodeMatchMode.Exact ? "Equals (birebir)" : "Contains (içerir)"), Color.Red);
             }
             catch (SocketException ex) when (ex.SocketErrorCode == SocketError.AddressAlreadyInUse)
             {

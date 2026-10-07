@@ -84,21 +84,33 @@ namespace SK50_Checker
                 {
                     string cmdText = "";
                     var conType = con.GetType();
+                    bool exact = Globals.BarcodeMatch == BarcodeMatchMode.Exact;
 
-                    // Eşleşen kayıt kümesi eskisiyle aynı (LIKE '%barkod%'), ancak birden fazla kayıt eşleşirse
-                    // rastgele biri yerine önce birebir eşleşen, yoksa en kısa (en yakın) barkod seçilir.
                     if (conType.Name == "FbConnection")
                     {
-                        //cmdText = $@"Select first 1 * from {Globals.ViewName} where barcode=@Barkod";
-                        cmdText = $@"Select first 1 * from {Globals.ViewName} where barcode like @Barkod
-                                     order by case when barcode = @BarkodTam then 0 else 1 end, char_length(barcode)"; //isbn barkod için
-
+                        if (exact)
+                        {
+                            cmdText = $@"Select first 1 * from {Globals.ViewName} where barcode = @BarkodTam";
+                        }
+                        else
+                        {
+                            // Birden fazla kayıt eşleşirse önce birebir eşleşen, yoksa en kısa (en yakın) barkod seçilir.
+                            cmdText = $@"Select first 1 * from {Globals.ViewName} where barcode like @Barkod
+                                         order by case when barcode = @BarkodTam then 0 else 1 end, char_length(barcode)"; //isbn barkod için
+                        }
                     }
 
                     if (conType.Name == "SqlConnection")
                     {
-                        cmdText = $@"Select top 1 * from {Globals.ViewName} where barcode like @Barkod
-                                     order by case when barcode = @BarkodTam then 0 else 1 end, len(barcode)";
+                        if (exact)
+                        {
+                            cmdText = $@"Select top 1 * from {Globals.ViewName} where barcode = @BarkodTam";
+                        }
+                        else
+                        {
+                            cmdText = $@"Select top 1 * from {Globals.ViewName} where barcode like @Barkod
+                                         order by case when barcode = @BarkodTam then 0 else 1 end, len(barcode)";
+                        }
                     }
 
                     var cmd = con.CreateCommand();
@@ -110,22 +122,23 @@ namespace SK50_Checker
                         var prmTam = cmd.CreateParameter();
                         prmTam.ParameterName = "@BarkodTam";
                         prmTam.Value = _barCode;
-
-                        var prm = cmd.CreateParameter();
-                        prm.ParameterName = "@Barkod";
-                        //prm.Value = _barCode;
-                        //--6057719255  -- 9786057719256
-
-                        //ISBN İÇİN AYAR??
-                        if (_barCode.Length == 10)
-                        {
-                            _barCode = _barCode.Substring(0, 9);
-                        }
-                        prm.Value = "%" + _barCode + "%";
-
-
-                        cmd.Parameters.Add(prm);
                         cmd.Parameters.Add(prmTam);
+
+                        if (!exact)
+                        {
+                            var prm = cmd.CreateParameter();
+                            prm.ParameterName = "@Barkod";
+                            //--6057719255  -- 9786057719256
+
+                            //ISBN İÇİN AYAR: ISBN-10 okutulduğunda kontrol hanesi atılıp ISBN-13 kaydı içinde aranır.
+                            if (_barCode.Length == 10)
+                            {
+                                _barCode = _barCode.Substring(0, 9);
+                            }
+                            prm.Value = "%" + _barCode + "%";
+
+                            cmd.Parameters.Add(prm);
+                        }
 
                         DataTable dt = SqlHelper.GetDataTable(cmd, "Products");
 
