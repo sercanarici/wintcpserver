@@ -70,15 +70,56 @@ namespace winTCPServer
         private readonly Dictionary<Socket, ClientSession> _sessionTable = new Dictionary<Socket, ClientSession>();
         private ushort _MaxClient;
 
+        private const string MessageStart = "<Property>";
+        private const string MessageEnd = "</Property>";
+        // Tamamlanmamış mesaj için üst sınır; aşılırsa bekleyen veri atılır.
+        private const int MaxPendingLength = 16 * 1024;
+
         private class ClientSession
         {
             public readonly Socket Socket;
             public readonly byte[] Buffer = new byte[DefaultBufferSize];
+            public readonly Decoder Decoder;
+            // Henüz tamamlanmamış mesaj parçaları.
+            public readonly StringBuilder Pending = new StringBuilder();
 
-            public ClientSession(Socket socket)
+            public ClientSession(Socket socket, Encoding encoding)
             {
                 Socket = socket;
+                Decoder = encoding.GetDecoder();
             }
+        }
+
+        // TCP akışında mesaj sınırı yoktur: bir mesaj birden fazla parça halinde gelebilir, SOEPS başlığıyla
+        // ya da başka bir mesajla aynı pakete düşebilir. Biriken veriden tamamlanan her mesaj ayrı çıkarılır.
+        private static List<string> ExtractMessages(StringBuilder pending)
+        {
+            List<string> messages = new List<string>();
+            while (true)
+            {
+                string text = pending.ToString();
+                int start = text.IndexOf(MessageStart, StringComparison.Ordinal);
+                if (start < 0)
+                {
+                    // Mesaj başlangıcı yok (ör. SOEPS başlığı); sadece yarım gelmiş olabilecek "<Property" kısmı saklanır.
+                    int keep = Math.Min(text.Length, MessageStart.Length - 1);
+                    pending.Remove(0, text.Length - keep);
+                    break;
+                }
+
+                int end = text.IndexOf(MessageEnd, start, StringComparison.Ordinal);
+                if (end < 0)
+                {
+                    // Mesajın devamı bekleniyor.
+                    pending.Remove(0, start);
+                    break;
+                }
+
+                end += MessageEnd.Length;
+                messages.Add(text.Substring(start, end - start));
+                pending.Remove(0, end);
+            }
+            return messages;
         }
 
         public bool IsRunning
@@ -276,7 +317,7 @@ namespace winTCPServer
                 return;
             }
 
-            ClientSession session = new ClientSession(client);
+            ClientSession session = new ClientSession(client, _coder);
             lock (_sessionTable)
             {
                 _sessionTable[client] = session;
@@ -299,21 +340,30 @@ namespace winTCPServer
                     CloseClient(client, "NormalExit");
                     return;
                 }
-                string receivedData = _coder.GetString(session.Buffer, 0, recv);
+                // Decoder parçalar arasında bölünen çok baytlı UTF-8 karakterleri doğru birleştirir.
+                char[] chars = new char[_coder.GetMaxCharCount(recv)];
+                int charCount = session.Decoder.GetChars(session.Buffer, 0, recv, chars, 0);
+                string receivedData = new string(chars, 0, charCount);
                 Debug.WriteLine(receivedData);
 
-
-                if (receivedData.StartsWith("<Property>"))
+                session.Pending.Append(receivedData);
+                foreach (string message in ExtractMessages(session.Pending))
                 {
-                    XmlValidate(receivedData);
+                    XmlValidate(message);
 
-                    string _barcode = GetBarcodeFromReceivedData(receivedData);
+                    string _barcode = GetBarcodeFromReceivedData(message);
 
                     Product _Product = Products.GetProductInfo(_barcode);
                     if (_Product != null)
                     {
                         SendProduct(client, _Product);
                     }
+                }
+
+                if (session.Pending.Length > MaxPendingLength)
+                {
+                    Logger.Write("RecvData: tamamlanmayan mesaj üst sınırı aştı, bekleyen veri atıldı.");
+                    session.Pending.Clear();
                 }
 
                 RaiseEvent(ReceivedData, new NetEventArgs(client, receivedData));
