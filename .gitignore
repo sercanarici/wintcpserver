@@ -3,3 +3,18 @@
 ################################################################################
 
 /.vs/winTCPServer
+
+# Derleme çıktıları
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio
+.vs/
+*.suo
+
+# macOS
+.DS_Store
+
+# Uygulama logları (müşteri verisi içerir)
+log.txt
+log.*.txt
