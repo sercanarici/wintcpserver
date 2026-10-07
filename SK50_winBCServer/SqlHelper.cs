@@ -3,6 +3,7 @@ using System;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 
 namespace winTCPServer
 {
@@ -86,7 +87,9 @@ namespace winTCPServer
 
                 using (var reader = komut.ExecuteReader())
                 {
-                    dt = new DataTable(tableName);
+                    // Kolon adı karşılaştırması tablonun Locale'ini kullanır; tr-TR'de "TITLE" ile "title"
+                    // eşleşmiyor (I/ı sorunu), bu yüzden kültürden bağımsız karşılaştırma yapılır.
+                    dt = new DataTable(tableName) { Locale = CultureInfo.InvariantCulture };
                     while (!reader.IsClosed)
                     {
                         dt.Load(reader);

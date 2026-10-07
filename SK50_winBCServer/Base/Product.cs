@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Data;
-using System.Data.SqlClient;
 using System.Drawing;
-using System.IO;
-using System.Windows.Forms;
 using winTCPServer;
 
 namespace SK50_Checker
@@ -84,16 +81,20 @@ namespace SK50_Checker
                     string cmdText = "";
                     var conType = con.GetType();
 
+                    // Eşleşen kayıt kümesi eskisiyle aynı (LIKE '%barkod%'), ancak birden fazla kayıt eşleşirse
+                    // rastgele biri yerine önce birebir eşleşen, yoksa en kısa (en yakın) barkod seçilir.
                     if (conType.Name == "FbConnection")
                     {
                         //cmdText = $@"Select first 1 * from {Globals.ViewName} where barcode=@Barkod";
-                        cmdText = $@"Select first 1 * from {Globals.ViewName} where barcode like @Barkod"; //isbn barkod için
+                        cmdText = $@"Select first 1 * from {Globals.ViewName} where barcode like @Barkod
+                                     order by case when barcode = @BarkodTam then 0 else 1 end, char_length(barcode)"; //isbn barkod için
 
                     }
 
                     if (conType.Name == "SqlConnection")
                     {
-                        cmdText = $@"Select top 1 * from {Globals.ViewName} where barcode like @Barkod";
+                        cmdText = $@"Select top 1 * from {Globals.ViewName} where barcode like @Barkod
+                                     order by case when barcode = @BarkodTam then 0 else 1 end, len(barcode)";
                     }
 
                     var cmd = con.CreateCommand();
@@ -101,6 +102,10 @@ namespace SK50_Checker
 
                     using (cmd)
                     {
+                        var prmTam = cmd.CreateParameter();
+                        prmTam.ParameterName = "@BarkodTam";
+                        prmTam.Value = _barCode;
+
                         var prm = cmd.CreateParameter();
                         prm.ParameterName = "@Barkod";
                         //prm.Value = _barCode;
@@ -115,6 +120,7 @@ namespace SK50_Checker
 
 
                         cmd.Parameters.Add(prm);
+                        cmd.Parameters.Add(prmTam);
 
                         DataTable dt = SqlHelper.GetDataTable(cmd, "Products");
 

@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.RegularExpressions;
 using SK50_Checker;
 using System.Xml;
 using System.Xml.Schema;
@@ -136,16 +137,33 @@ namespace winTCPServer
             }
         }
 
+        // Entity/karakter referansı başlatmayan çıplak '&' karakterleri.
+        private static readonly Regex _bareAmpersand = new Regex(@"&(?!(#[0-9]+|#x[0-9a-fA-F]+|amp|lt|gt|quot|apos);)", RegexOptions.Compiled);
+
+        // Ürün adındaki '&' ve '<' gibi karakterler XML'i bozuyordu ("H&M" gibi).
+        // View'ların bilinçli eklediği '&#13;' (cihazda satır atlatır) gibi referanslar olduğu gibi korunur.
+        private static string XmlEscape(string value, bool attribute = false)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return value;
+            }
+            string escaped = _bareAmpersand.Replace(value, "&amp;").Replace("<", "&lt;");
+            return attribute ? escaped.Replace("\"", "&quot;") : escaped;
+        }
+
         public virtual void SendProduct(Socket Client, Product _Product)
         {
             try
             {
-                string root = string.Format("<root><barcode>{0}</barcode><title>{1}</title><desp>{2}</desp><price1>{3}</price1><price2>{4}</price2></root>", _Product.Barcode, _Product.Title, _Product.Description, _Product.Price, _Product.Price2);
+                string root = string.Format("<root><barcode>{0}</barcode><title>{1}</title><desp>{2}</desp><price1>{3}</price1><price2>{4}</price2></root>", XmlEscape(_Product.Barcode), XmlEscape(_Product.Title), XmlEscape(_Product.Description), XmlEscape(_Product.Price), XmlEscape(_Product.Price2));
 
+                // Not: Length karakter sayısı olarak gönderiliyor. UTF-8'de bayt sayısı farklı olsa da (€, Türkçe karakterler)
+                // cihazlar bu haliyle çalışıyor; cihazda test edilmeden bayt sayısına çevrilmemeli.
                 int len = root.Length;
 
 
-                string txtData = string.Format(@"<Property><ValuePairs><Item Key=""Message-Profile-Id"" Value=""SK4050"" /><Item Key=""Code-Content"" Value=""{0}"" /></ValuePairs><PayLoads><Item Type=""XML"" Length=""{1}"" /></PayLoads></Property>{2}", _Product.Barcode, len, root);
+                string txtData = string.Format(@"<Property><ValuePairs><Item Key=""Message-Profile-Id"" Value=""SK4050"" /><Item Key=""Code-Content"" Value=""{0}"" /></ValuePairs><PayLoads><Item Type=""XML"" Length=""{1}"" /></PayLoads></Property>{2}", XmlEscape(_Product.Barcode, true), len, root);
 
                 byte[] _soeps = SoepsOlustur(_Product);
 
