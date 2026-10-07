@@ -1,5 +1,7 @@
-﻿using System;
+﻿using FirebirdSql.Data.FirebirdClient;
+using System;
 using System.Data;
+using System.Data.SqlClient;
 using System.Drawing;
 using winTCPServer;
 
@@ -160,10 +162,29 @@ namespace SK50_Checker
             catch (Exception ex)
             {
                 Logger.Write("GetProductInfo (" + _barCode + "): " + ex.Message);
-                p.Description = ex.Message;
+                // Zaman aşımında cihazda uzun İngilizce hata yerine kısa bir Türkçe mesaj gösterilir.
+                p.Description = IsTimeout(ex) ? TimeoutMessage : ex.Message;
                 return p;
             }
-           
+
+        }
+
+        private const string TimeoutMessage = "Sistem yanıt vermedi. Lütfen tekrar okutun.";
+
+        private static bool IsTimeout(Exception ex)
+        {
+            // SQL Server: -2 = sorgu zaman aşımı. Firebird: 335544794 = isc_cancelled (CommandTimeout ile iptal).
+            SqlException sqlEx = ex as SqlException;
+            if (sqlEx != null && sqlEx.Number == -2)
+            {
+                return true;
+            }
+            FbException fbEx = ex as FbException;
+            if (fbEx != null && fbEx.ErrorCode == 335544794)
+            {
+                return true;
+            }
+            return ex is TimeoutException;
         }
 
     }
