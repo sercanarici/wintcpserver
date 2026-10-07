@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -62,17 +62,29 @@ namespace winTCPServer
         public const int DefaultBufferSize = 1024 * 64;
         private Encoding _coder;
         private int _port;
-        private bool _isRun;
+        private volatile bool _isRun;
         private Socket _socket;
-        private Hashtable _sessionTable;
-        private byte[] _recvDataBuffer;
+        // Her client kendi alım buffer'ına sahip; tek ortak buffer eşzamanlı okumalarda veriyi karıştırıyordu.
+        // Anahtar Socket nesnesinin kendisi: Handle değeri kapanan soketten sonra yeni bir sokete verilebiliyor.
+        private readonly Dictionary<Socket, ClientSession> _sessionTable = new Dictionary<Socket, ClientSession>();
         private ushort _MaxClient;
 
-        public Hashtable SessionTable
+        private class ClientSession
+        {
+            public readonly Socket Socket;
+            public readonly byte[] Buffer = new byte[DefaultBufferSize];
+
+            public ClientSession(Socket socket)
+            {
+                Socket = socket;
+            }
+        }
+
+        public bool IsRunning
         {
             get
             {
-                return _sessionTable;
+                return _isRun;
             }
         }
 
@@ -80,7 +92,10 @@ namespace winTCPServer
         {
             get
             {
-                return _sessionTable.Count;
+                lock (_sessionTable)
+                {
+                    return _sessionTable.Count;
+                }
             }
         }
 
@@ -98,18 +113,27 @@ namespace winTCPServer
         public virtual void Start(int port)
         {
             if (_isRun)
-                throw new Exception("Server is running!");
+                throw new InvalidOperationException("Server is running!");
             _port = port;
-            _sessionTable = new Hashtable();
-            _recvDataBuffer = new byte[DefaultBufferSize];
-            _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-            IPEndPoint iep = new IPEndPoint(IPAddress.Any, port);
-            _socket.Bind(iep);
-            _socket.Listen(5);
+            try
+            {
+                IPEndPoint iep = new IPEndPoint(IPAddress.Any, port);
+                listener.Bind(iep);
+                listener.Listen(5);
 
-            _socket.BeginAccept(new AsyncCallback(AcceptConn), _socket);
-            _isRun = true;
+                // AcceptConn _isRun'a baktığı için BeginAccept'ten önce set edilmeli.
+                _socket = listener;
+                _isRun = true;
+                listener.BeginAccept(new AsyncCallback(AcceptConn), listener);
+            }
+            catch
+            {
+                _isRun = false;
+                listener.Close();
+                throw;
+            }
         }
 
         public virtual void SendProduct(Socket Client, Product _Product)
@@ -131,9 +155,14 @@ namespace winTCPServer
 
                 Client.BeginSend(_data, 0, _data.Length, SocketFlags.None, new AsyncCallback(SendDataEnd), Client);
             }
+            catch (ObjectDisposedException)
+            {
+                // Client bu arada kapatılmış.
+            }
             catch (Exception ex)
             {
-
+                Logger.Write("SendProduct: " + ex);
+                CloseClient(Client, "SendError");
             }
         }
 
@@ -141,54 +170,109 @@ namespace winTCPServer
         {
             if (!_isRun)
             {
-                throw (new ApplicationException("Server is Stop"));
+                return;
             }
 
             _isRun = false;
-            if (_socket.Connected)
+            try
             {
-                _socket.Shutdown(SocketShutdown.Both);
+                _socket.Close();
             }
-            while (SessionTable.Count > 0)
+            catch (Exception ex)
             {
-                object[] keys = new object[SessionTable.Count];
-                SessionTable.Keys.CopyTo(keys, 0);
-                Socket _client = (Socket)SessionTable[keys[0]];
-                CloseClient(_client, "StopServer");
+                Logger.Write("Stop: " + ex);
             }
-            _socket.Close();
 
-            _sessionTable = null;
+            List<Socket> clients;
+            lock (_sessionTable)
+            {
+                clients = new List<Socket>(_sessionTable.Keys);
+            }
+            foreach (Socket client in clients)
+            {
+                CloseClient(client, "StopServer");
+            }
         }
+
+        // Soket callback'leri IOCP thread'inde çalışır; buradan kaçan her exception process'i sonlandırır.
+        // Bu yüzden callback'ler hiçbir exception'ı dışarı sızdırmamalı.
         protected virtual void AcceptConn(IAsyncResult iar)
         {
             if (!_isRun)
             {
                 return;
             }
-            Socket oldserver = (Socket)iar.AsyncState;
-            Socket client = oldserver.EndAccept(iar);
-            if (SessionCount == _MaxClient)
+            Socket listener = (Socket)iar.AsyncState;
+            Socket client = null;
+            try
             {
-                if (ServerFull != null)
-                    ServerFull(this, new NetEventArgs(client));
+                client = listener.EndAccept(iar);
             }
-            else
+            catch (ObjectDisposedException)
             {
-                _sessionTable.Add(client.Handle, client);
-                client.BeginReceive(_recvDataBuffer, 0, _recvDataBuffer.Length, SocketFlags.None,
-                new AsyncCallback(RecvData), client);
-                if (ClientConn != null)
+                // Server durduruldu.
+                return;
+            }
+            catch (Exception ex)
+            {
+                Logger.Write("AcceptConn: " + ex);
+            }
+
+            if (client != null)
+            {
+                try
                 {
-                    ClientConn(this, new NetEventArgs(client));
+                    AddClient(client);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Write("AcceptConn: " + ex);
+                    CloseClient(client, "AcceptError");
                 }
             }
-            _socket.BeginAccept(new AsyncCallback(AcceptConn), _socket);
+
+            // Ne olursa olsun yeni bağlantıları dinlemeye devam et.
+            if (_isRun)
+            {
+                try
+                {
+                    listener.BeginAccept(new AsyncCallback(AcceptConn), listener);
+                }
+                catch (ObjectDisposedException)
+                {
+                }
+                catch (Exception ex)
+                {
+                    Logger.Write("BeginAccept: " + ex);
+                }
+            }
+        }
+
+        private void AddClient(Socket client)
+        {
+            if (SessionCount >= _MaxClient)
+            {
+                Logger.Write("Maksimum client sayısına ulaşıldı, bağlantı reddedildi.");
+                RaiseEvent(ServerFull, new NetEventArgs(client));
+                client.Close();
+                return;
+            }
+
+            ClientSession session = new ClientSession(client);
+            lock (_sessionTable)
+            {
+                _sessionTable[client] = session;
+            }
+            // ClientClose'dan önce gelmesi için ClientConn, okuma başlamadan tetiklenir.
+            RaiseEvent(ClientConn, new NetEventArgs(client));
+            client.BeginReceive(session.Buffer, 0, session.Buffer.Length, SocketFlags.None,
+                new AsyncCallback(RecvData), session);
         }
 
         protected virtual void RecvData(IAsyncResult iar)
         {
-            Socket client = (Socket)iar.AsyncState;
+            ClientSession session = (ClientSession)iar.AsyncState;
+            Socket client = session.Socket;
             try
             {
                 int recv = client.EndReceive(iar);
@@ -197,7 +281,7 @@ namespace winTCPServer
                     CloseClient(client, "NormalExit");
                     return;
                 }
-                string receivedData = _coder.GetString(_recvDataBuffer, 0, recv);
+                string receivedData = _coder.GetString(session.Buffer, 0, recv);
                 Debug.WriteLine(receivedData);
 
 
@@ -214,81 +298,115 @@ namespace winTCPServer
                     }
                 }
 
-                if (client == null) return;
-                ReceivedData(this, new NetEventArgs(client, receivedData));
+                RaiseEvent(ReceivedData, new NetEventArgs(client, receivedData));
 
-                client.BeginReceive(_recvDataBuffer, 0, _recvDataBuffer.Length, SocketFlags.None,
-                new AsyncCallback(RecvData), client);
+                client.BeginReceive(session.Buffer, 0, session.Buffer.Length, SocketFlags.None,
+                new AsyncCallback(RecvData), session);
+            }
+            catch (ObjectDisposedException)
+            {
+                // Soket başka bir yerde (Stop / gönderim hatası) kapatılmış.
+                CloseClient(client, "Disposed");
             }
             catch (SocketException ex)
             {
-                using (StreamWriter w = File.AppendText("log.txt"))
-                {
-                    frmMain.Log(ex.ToString(), w);
-                }
-
-                //System.Windows.Forms.MessageBox.Show(ex.Message.ToString());
-                if (10054 == ex.ErrorCode)
-                {
-                    CloseClient(client, "ExceptionExit");
-                }
+                Logger.Write(ex.ToString());
+                // Önceden sadece 10054'te kapatılıyordu; 10053/10060'ta soket açık ve tabloda kalıp sızıyordu.
+                CloseClient(client, "ExceptionExit");
             }
-            catch (ObjectDisposedException ex)
+            catch (Exception ex)
             {
-                if (ex != null) ex = null;
+                // Bozuk/parçalı XML vb. Önceden bu durum process'i çökertiyordu.
+                Logger.Write("RecvData: " + ex);
+                CloseClient(client, "ProcessError");
             }
         }
 
         protected virtual void CloseClient(Socket client, string exitMsg)
         {
+            if (client == null)
+            {
+                return;
+            }
+
+            bool removed;
+            lock (_sessionTable)
+            {
+                removed = _sessionTable.Remove(client);
+            }
+
+            // Aynı client birden fazla callback'ten kapatılabilir; event'i sadece bir kez tetikle.
+            if (removed)
+            {
+                RaiseEvent(ClientClose, new NetEventArgs(client));
+            }
+
             try
             {
-                if (client != null)
-                {
-                    SessionTable.Remove(client.Handle);
-                    if (ClientClose != null)
-                        ClientClose(this, new NetEventArgs(client));
-
-                    client.Shutdown(SocketShutdown.Both);
-
-                    client.Close();
-                }
+                client.Shutdown(SocketShutdown.Both);
             }
             catch
             {
-                throw (new ApplicationException("Client is null"));
+                // Bağlantı zaten kopmuş olabilir.
+            }
+
+            try
+            {
+                client.Close();
+            }
+            catch
+            {
             }
         }
 
         protected virtual void SendDataEnd(IAsyncResult iar)
         {
             Socket remote = (Socket)iar.AsyncState;
-            int sent = remote.EndSend(iar);
+            try
+            {
+                remote.EndSend(iar);
+            }
+            catch (ObjectDisposedException)
+            {
+                // Client bu arada kapatılmış.
+            }
+            catch (Exception ex)
+            {
+                // Cihaz yanıtı beklemeden bağlantıyı kopardıysa buraya düşer (logdaki 10053 sonrası çökmeler).
+                Logger.Write("SendDataEnd: " + ex);
+                CloseClient(remote, "SendError");
+            }
+        }
+
+        private void RaiseEvent(NetEvent handler, NetEventArgs e)
+        {
+            if (handler == null)
+            {
+                return;
+            }
+            try
+            {
+                handler(this, e);
+            }
+            catch (Exception ex)
+            {
+                Logger.Write("Event handler: " + ex);
+            }
         }
 
         private void XmlValidate(string xmlstr)
         {
-            try
+            string schemapath = Directory.GetCurrentDirectory() + "\\Scheme.xsd";
+            using (XmlTextReader schemaReader = new XmlTextReader(schemapath))
             {
-                string schemapath = Directory.GetCurrentDirectory() + "\\Scheme.xsd";
-                XmlTextReader schemaReader = new XmlTextReader(schemapath);
                 XmlSchema sema = XmlSchema.Read(schemaReader, ValidationCallBack);
 
                 XmlReaderSettings settings = new XmlReaderSettings();
                 settings.Schemas.Add(sema);
                 settings.ValidationType = ValidationType.Schema;
-                ValidationEventHandler eventHandler = new ValidationEventHandler(ValidationCallBack);
 
                 XmlReader reader = XmlReader.Create(new StringReader(xmlstr), settings);
-
             }
-            catch (Exception ex)
-            {
-
-                throw ex;
-            }
-
-
         }
 
         private void ValidationCallBack(object sender, ValidationEventArgs e)
@@ -296,34 +414,21 @@ namespace winTCPServer
             switch (e.Severity)
             {
                 case XmlSeverityType.Error:
-                    throw new Exception(string.Format("Error: {}", e.Message));
+                    throw new Exception(string.Format("Error: {0}", e.Message));
                 case XmlSeverityType.Warning:
-                    throw new Exception(string.Format("Warning: {}", e.Message));
+                    throw new Exception(string.Format("Warning: {0}", e.Message));
             }
         }
 
         private string GetBarcodeFromReceivedData(string receivedData)
         {
-            string sonuc = "";
-            try
-            {
-                XmlDocument doc = new XmlDocument();
-                doc.LoadXml(receivedData);
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(receivedData);
 
-                XmlNode node;
-                XmlNode root = doc.DocumentElement;
+            XmlNode root = doc.DocumentElement;
+            XmlNode node = root.ChildNodes[0].ChildNodes[1];
 
-                node = root.ChildNodes[0].ChildNodes[1];
-
-                sonuc = node.Attributes["Value"].Value;
-            }
-            catch (Exception ex)
-            {
-
-                throw ex;
-            }
-
-            return sonuc;
+            return node.Attributes["Value"].Value;
 
         }
 
