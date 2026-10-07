@@ -7,8 +7,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using SK50_Checker;
 using System.Xml;
-using System.Xml.Schema;
-using System.Data;
 using System.Diagnostics;
 using System.Linq;
 
@@ -349,8 +347,6 @@ namespace winTCPServer
                 session.Pending.Append(receivedData);
                 foreach (string message in ExtractMessages(session.Pending))
                 {
-                    XmlValidate(message);
-
                     string _barcode = GetBarcodeFromReceivedData(message);
 
                     Product _Product = Products.GetProductInfo(_barcode);
@@ -459,32 +455,6 @@ namespace winTCPServer
             catch (Exception ex)
             {
                 Logger.Write("Event handler: " + ex);
-            }
-        }
-
-        private void XmlValidate(string xmlstr)
-        {
-            string schemapath = Directory.GetCurrentDirectory() + "\\Scheme.xsd";
-            using (XmlTextReader schemaReader = new XmlTextReader(schemapath))
-            {
-                XmlSchema sema = XmlSchema.Read(schemaReader, ValidationCallBack);
-
-                XmlReaderSettings settings = new XmlReaderSettings();
-                settings.Schemas.Add(sema);
-                settings.ValidationType = ValidationType.Schema;
-
-                XmlReader reader = XmlReader.Create(new StringReader(xmlstr), settings);
-            }
-        }
-
-        private void ValidationCallBack(object sender, ValidationEventArgs e)
-        {
-            switch (e.Severity)
-            {
-                case XmlSeverityType.Error:
-                    throw new Exception(string.Format("Error: {0}", e.Message));
-                case XmlSeverityType.Warning:
-                    throw new Exception(string.Format("Warning: {0}", e.Message));
             }
         }
 
